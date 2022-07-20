@@ -6,94 +6,143 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RadioserviceTest {
-    RadioService radio = new RadioService();
+    RadioService netologyFm = new RadioService();
 
-
+    //тестируем станции
     @Test
-    public void setUpCurrentVolume1() {
-        radio.setCurrentVolume(2);
-        radio.setUpCurrentVolume();
-        int expected = 3;
-        assertEquals(expected, radio.getCurrentVolume());
+    public void shouldGetCurrentStation() {
+        netologyFm.setCurrentStation(0);
+        netologyFm.setCurrentStation(-1);
+        netologyFm.setCurrentStation(11);
+        assertEquals(0, netologyFm.getCurrentStation());
     }
 
-    @BeforeEach
     @Test
-    public void setUpCurrentVolumeWhenMax() {
-        radio.setCurrentVolume(10);
-        radio.setUpCurrentVolume();
-        int expected = 10;
-        assertEquals(expected, radio.getCurrentVolume());
+    public void shouldPressNextStation() {
+        netologyFm.setCurrentStation(0);
+        netologyFm.pressNextStation();
+        assertEquals(1, netologyFm.getCurrentStation());
+
+        netologyFm.setCurrentStation(10);
+        netologyFm.pressNextStation();
+        assertEquals(0, netologyFm.getCurrentStation());
+
+        netologyFm.setCurrentStation(-1);
+        netologyFm.pressNextStation();
+        assertEquals(0, netologyFm.getCurrentStation());
+
+        netologyFm.setCurrentStation(11);
+        netologyFm.pressNextStation();
+        assertEquals(1, netologyFm.getCurrentStation());
     }
 
-    @BeforeEach
     @Test
-    public void setDownCurrentVolume() {
-        radio.setCurrentVolume(2);
-        radio.setDownCurrentVolume();
-        int expected = 1;
-        assertEquals(expected, radio.getCurrentVolume());
+    public void shouldPressPrevStation() {
+        netologyFm.setCurrentStation(0);
+        netologyFm.pressPrevStation();
+        assertEquals(10, netologyFm.getCurrentStation());
+
+        netologyFm.setCurrentStation(10);
+        netologyFm.pressPrevStation();
+        assertEquals(9, netologyFm.getCurrentStation());
     }
 
-    @BeforeEach
     @Test
-    public void setDownCurrentVolumeWhenMin() {
-        radio.setCurrentVolume(0);
-        radio.setDownCurrentVolume();
-        int expected = 0;
-        assertEquals(expected, radio.getCurrentVolume());
+    public void shouldGetToMaxStation() {
+        assertEquals(10, netologyFm.getMaxRadioStation());
     }
 
-    @BeforeEach
     @Test
-    public void setUpCurrentStation() {
-        radio.setCurrentStation(7);
-        radio.setUpCurrentStation();
-        int expected = 8;
-        assertEquals(expected, radio.getCurrentStation());
+    public void shouldSetMaxStation() {
+        netologyFm.setMaxRadioStation(-1);
+        netologyFm.setMaxRadioStation(0);
+        netologyFm.setMaxRadioStation(11);
+        assertEquals(11, netologyFm.getMaxRadioStation());
     }
 
-    @BeforeEach
     @Test
-    public void setFirstStationWhenLast() {
-        radio.setCurrentStation(9);
-        radio.setUpCurrentStation();
-        int expected = 0;
-        assertEquals(expected, radio.getCurrentStation());
+    public void shouldGetToMinStation() {
+        assertEquals(0, netologyFm.getMinRadioStation());
     }
 
-    @BeforeEach
     @Test
-    public void setDownCurrentStation() {
-        radio.setCurrentStation(2);
-        radio.setDownCurrentStation();
-        int expected = 1;
-        assertEquals(expected, radio.getCurrentStation());
+    public void shouldSetMinStation() {
+        netologyFm.setMinRadioStation(-1);
+        netologyFm.setMinRadioStation(0);
+        netologyFm.setMinRadioStation(11);
+        assertEquals(11, netologyFm.getMinRadioStation());
     }
 
-    @BeforeEach
+    //тестируем громкость
     @Test
-    public void setLastStationWhenFirst() {
-        radio.setCurrentStation(0);
-        radio.setDownCurrentStation();
-        int expected = 9;
-        assertEquals(expected, radio.getCurrentStation());
+    public void shouldSetCurrentVolume() {
+        netologyFm.setCurrentVolume(101);
+        assertEquals(0, netologyFm.getCurrentVolume());
+
+        netologyFm.setCurrentVolume(-1);
+        assertEquals(100, netologyFm.getCurrentVolume());
+
+        netologyFm.setCurrentVolume(8);
+        assertEquals(8, netologyFm.getCurrentVolume());
     }
 
-    @BeforeEach
     @Test
-    public void setRadio() {
-        radio.setCurrentStation(2);
-        int expected = 2;
-        assertEquals(expected, radio.getCurrentStation());
+    public void shouldGetMinVolume() {
+        assertEquals(0, netologyFm.getMinVolume());
     }
 
-    @BeforeEach
     @Test
-    public void setCurrentVolumme() {
-        radio.setCurrentVolume(2);
-        int expected = 2;
-        assertEquals(expected, radio.getCurrentStation());
+    public void shouldGetMaxVolume() {
+        assertEquals(100, netologyFm.getMaxVolume());
+    }
+
+    @Test
+    public void shouldSetMinVolume() {
+        netologyFm.setMaxVolume(100);
+        netologyFm.setMinVolume(1);
+        assertEquals(1, netologyFm.getMinVolume());
+    }
+
+    @Test
+    public void shouldSetMaxVolume() {
+        netologyFm.setMinVolume(1);
+        netologyFm.setMaxVolume(101);
+        assertEquals(101, netologyFm.getMaxVolume());
+    }
+
+    @Test
+    public void shouldPressVolumeUp() {
+        netologyFm.setCurrentVolume(4);
+        netologyFm.pressVolumeUp();
+        assertEquals(5, netologyFm.getCurrentVolume());
+
+        netologyFm.setCurrentVolume(100);
+        netologyFm.pressVolumeUp();
+        assertEquals(0, netologyFm.getCurrentVolume());
+    }
+
+    @Test
+    public void shouldPressVolumeDown() {
+        netologyFm.setCurrentVolume(4);
+        netologyFm.pressVolumeDown();
+        assertEquals(3, netologyFm.getCurrentVolume());
+
+        netologyFm.setCurrentVolume(0);
+        netologyFm.pressVolumeDown();
+        assertEquals(100, netologyFm.getCurrentVolume());
+    }
+
+    //тестируем конструктор с возможностью задавать количество радиостанций при создании объекта
+    @Test
+    public void shouldCreateStationsWithLimits() {
+        RadioService radio = new RadioService(1);
+        assertEquals(0, radio.getMaxRadioStation());
+
+        RadioService radio1 = new RadioService(100);
+        assertEquals(99, radio1.getMaxRadioStation());
+
+        RadioService radio2 = new RadioService(10);
+        assertEquals(0, radio2.getMinRadioStation());
     }
 
 }
